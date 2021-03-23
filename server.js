@@ -1,14 +1,27 @@
-const { createServer } = require("http");
-const app = require("./dist/App.js");
+const fs = require('fs');
+const http = require('http');
+const watch = require('watch');
+const che = require('child_process');
 
-createServer((req, res) => {
-  const { html } = app.render({ url: req.url });
+const server = http.createServer((req, res) => {
+  // console.log(req.url);
 
-  res.write(`
-    <!DOCTYPE html>
-    <div id="app">${html}</div>
-    <script src="/dist/bundle.js"></script>
-  `);
-
+  let path = req.url == "/" ? "dfsf.js" : req.url;
+  if (fs.existsSync("./public/" + path)) {
+    let re = fs.readFileSync("./public" + path);
+    res.write(re);
+  } else {
+    let re = fs.readFileSync("./public/index.html");
+    res.write(re);
+    // res.statusCode = 400
+  }
   res.end();
-}).listen(3000);
+});
+
+watch.watchTree("./src", function (f, curr, prev) {
+  // Fire server-side reload event
+  console.log("Reload bulid");
+  che.exec("yarn run build")
+});
+console.log("Go to : http://127.0.0.1:3000");
+server.listen(3000);
