@@ -1,17 +1,20 @@
 <script>
-	import { Router, Route, Link } from "svelte-routing";
+	import page from "page";
 	import Home from "./page/home.svelte";
 	import login from "./page/login.svelte";
-	export let url = ""; //This property is necessary declare to avoid ignore the Router
+	import progect from "./page/progect.svelte";
+	let current = Home;
+	page('/', () => (current = Home));
+	page('/login', () => (current = login));
+	page('/pro/:id', () => (current = progect));
+	if(!localStorage.getItem("key")) {
+		page.redirect('/login');
+	}
+	page.start();
 </script>
 
-<Router url="{url}">
-	<nav>
-	   <Link to="/">Home</Link>
-	   <Link to="login">login</Link>
-	</nav>
-	<div>
-		<Route path="/"><Home /></Route>
-		<Route path="login" component="{login}" /> 
-	 </div>
-</Router>
+<svelte:component this={current} />
+
+<style lang="scss" global>
+	@import "./style/main";
+</style>
